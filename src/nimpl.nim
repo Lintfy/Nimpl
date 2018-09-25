@@ -1,7 +1,7 @@
 # deveropped by tlllune
 #
 #=====-==----- -  -
-#   nimpl - the plotting tool on NIM
+#   nimpl - powerful & lightweight GUI plotting tool written in Nim
 #==========================-====-==------------- - -   -
 # version None
 #
