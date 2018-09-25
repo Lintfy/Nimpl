@@ -1,5 +1,5 @@
 # NimPL - Alpha
-**WARNING : This project is in a very early stage (version Alpha), so you must not be able to use it.**
+**WARNING : Sorry! This project is in a very early stage (version Alpha), so you cannot use it ebough.**
 
 NimPL is a simple and useful GUI plotting tool for **Nim** lanuage.
 
