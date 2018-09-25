@@ -32,6 +32,3 @@ NimPLはBeta版よりNimble対応予定です。
 # ライセンス
 
 NimPLはオープンソースです( MIT LICENCE で保証しています )。自由に利用/改造して使ってください。
-
-
-by Tlllune
