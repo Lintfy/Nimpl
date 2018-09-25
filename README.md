@@ -1,7 +1,7 @@
 # NimPL - Alpha
 **WARNING : This project is in a very early stage (version Alpha), so you must not be able to use it.**
 
-NimPL is a simple and useful GUI plotting tool on [Nim](https://github.com/nim-lang/Nim).
+NimPL is a simple and useful GUI plotting tool for **Nim** lanuage.
 
 ### Target platforms
 Windows ( Win32API ) < Under development ><br>
