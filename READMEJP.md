@@ -25,10 +25,12 @@ Windows ( Win32API ) < 開発中 ><br>
 Linux ( GTK+ 3 ) < まって ><br>
 MacOS ( GTK+ 3 ) < まって ><br>
 
-# インストール
+## インストール
 
 NimPLはBeta版よりNimble対応予定です。
 
-# ライセンス
+## ライセンス
 
 NimPLはオープンソースです( MIT LICENCE で保証しています )。自由に利用/改造して使ってください。
+
+Copyright 2018 Teruki Tada
