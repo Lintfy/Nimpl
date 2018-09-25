@@ -1,8 +1,8 @@
-# NimPL
+# Nimpl
 
 注意 : このプロジェクトは開発段階( Alpha )です。うまく利用できない可能性があります。
 
-NimPLは、軽量でシンプルな純Nim製のGUIグラフツールです。<br>
+Nimplは、軽量でシンプルな純Nim製のGUIグラフツールです。<br>
 (PythonのMatplotlibを意識しています。)
 
 ### 機能
@@ -27,10 +27,10 @@ MacOS ( GTK+ 3 ) < まって ><br>
 
 ## インストール
 
-NimPLはBeta版よりNimble対応予定です。
+NimplはBeta版よりNimble対応予定です。
 
 ## ライセンス
 
-NimPLはオープンソースです( MIT LICENCE で保証しています )。自由に利用/改造して使ってください。
+Nimplはオープンソースです( MIT LICENCE で保証しています )。自由に利用/改造して使ってください。
 
 Copyright 2018 Teruki Tada
