@@ -1,12 +1,14 @@
-# NimPL - minimal GUI plotting tool on Nim
-WARNING : This project is in a very early stage, so you must not be able to use it.
+# NimPL - Alpha
+**WARNING : This project is in a very early stage (version Alpha), so you must not be able to use it.**
 
-NimPL is a plotting tool on [Nim](https://github.com/nim-lang/Nim).
+NimPL is a simple and useful GUI plotting tool on [Nim](https://github.com/nim-lang/Nim).
 
 ### Target platforms
+Windows ( Win32API ) < Under development ><br>
+Linux ( Gtk+ 3 ) < Planned ><br>
+MacOS ( Gtk+ 3 ) < Planned ><br>
 
-Windows ( Win32API ) < Under development >
+# LICENCE
+NimPL is an open-source software (licenced under MIT LICENCE).
 
-Linux ( Gtk+ 3 ) < Planned >
-
-MacOS ( Gtk+ 3 ) < Planned >
+Copyright 2018- Teruki Tada
