@@ -1,4 +1,4 @@
-# Nimpl - Alpha
+# Nimpl - Alpha 1
 **WARNING : Sorry! This project is in a very early stage (version Alpha), so you cannot use it ebough.**
 
 Nimpl is a powerful & lightweight GUI plotting tool for **Nim** lanuage.
