@@ -191,23 +191,7 @@ proc event(hWnd:pointer,uMsg:int,wParam,lParam:pointer):pointer=
     discard hwnd.EndPaint(ps.addr)
     mtp=false
     return nil
-
-    # draw texts
-    #[
-    tdc = hwnd.GetDC
-    discard tdc.SelectObject(hfont)
-    for ts in (0..<txts.len):
-      stx=txts[ts]
-      for i in countdown(txts[ts].len-1,1):
-        stx.insert("\0",i)
-      echo tdc.TextOutW(int32(txy[ts][0]),int32(txy[ts][1]),stx,int8(txts[ts].len))
-    echo hwnd.ReleaseDC(tdc)
-    echo tdc.DeleteDC
-    echo hdc.DeleteDC
-    echo hwnd.EndPaint(ps)
-    echo "-----"
-
-    ]#
+    
   else:discard
 
   return DefWindowProcA(hWnd,uMsg,wParam,lParam)
