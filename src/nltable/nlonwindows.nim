@@ -47,7 +47,6 @@ type
 proc CreateWindowExA(dwExStyle:int32,lpClassName,lpWindowName:cstring,dwStyle:int32,x,y,nWidth,nHeight:int,hWndParent,hMenu,hInstance,lpParam:pointer):pointer{.importc:"CreateWindowExA",User.}
 proc ShowWindow(hWnd:pointer,nCmdShow:int32):bool{.importc:"ShowWindow",User.}
 proc DefWindowProcA(hWnd:pointer,uMsg:int,wParam,lParam:pointer):pointer{.importc:"DefWindowProcA",User.}
-proc TranslateMessage(lpMsg: pointer): bool {.importc: "TranslateMessage", User.}
 proc DispatchMessageA(lpMsg: pointer): pointer {.importc: "DispatchMessageA", User.}
 proc PostQuitMessage(nExitCode: int32) {.importc: "PostQuitMessage", User.}
 proc GetMessageA(lpMsg, hWnd: pointer, wMsgFilterMin, wMsgFilterMax: int32): bool {.importc: "GetMessageA", User.}
@@ -59,10 +58,8 @@ proc ReleaseDC(hWnd,hDc:pointer):int8{.importc:"ReleaseDC", User.}
 proc BeginPaint(hWnd: pointer, lpPaint: ptr PaintStruct): pointer {.importc: "BeginPaint", User.}
 proc EndPaint(hWnd: pointer, lpPaint: ptr PaintStruct): bool {.importc: "EndPaint", User.}
 proc GetAsyncKeyState(vKey: int32): int8 {.importc: "GetAsyncKeyState", User.}
-proc InvalidateRect(hWnd: pointer, lpRect:ref Rect, bErase: bool): bool {.importc: "InvalidateRect", User.}
 proc InvalidateRgn(hWnd: pointer, hrgn:pointer, bErase: bool): bool {.importc: "InvalidateRect", User.}
 proc UpdateWindow(hWnd: pointer): bool {.importc: "UpdateWindow", User.}
-proc RedrawWindow(hWnd: pointer,lprcUpdate:ref Rect,hrgnUpdate:pointer,flags:int32): bool {.importc: "RedrawWindow", User.}
 proc GetCursorPos(lpPoint :ptr Point) :bool {.importc:"GetCursorPos", User.}
 proc CreateFontA(nHeight, nWidth, nEscapement, nOrientation, fnWeight, fdwItalic, fdwUnderline, fdwStrikeOut, fdwCharSet, fdwOutputPrecision, fdwClipPrecision, fdwQuality, fdwPitchAndFamily: int32, lpszFace: cstring): pointer {.importc: "CreateFontA", Gdi.}
 proc MoveToEx(hdc: pointer, x, y: int32, lpPoint: pointer): bool {.importc: "MoveToEx", Gdi.}
@@ -74,9 +71,8 @@ proc DeleteObject(hObject: pointer): bool {.importc: "DeleteObject", Gdi.}
 proc Rectangle(hdc: pointer, sx, sy, ex, ey: int32): pointer {.importc: "Rectangle", Gdi.}
 proc Ellipse(hdc: pointer, sx, sy, ex, ey: int32): pointer {.importc: "Ellipse", Gdi.}
 proc GetStockObject(fnObject: int32): pointer {.importc: "GetStockObject", Gdi.}
-proc DeleteDC(hdc:pointer):bool{.importc: "DeleteDC", Gdi.}
 
-proc GetLastError:int32{.importc:"GetLastError",stdcall,dynlib:"Kernel32.dll".}
+##proc GetLastError:int32{.importc:"GetLastError",stdcall,dynlib:"Kernel32.dll".}
 
 proc event(hWnd:pointer,uMsg:int,wParam,lParam:pointer):pointer
 
@@ -191,7 +187,7 @@ proc event(hWnd:pointer,uMsg:int,wParam,lParam:pointer):pointer=
     discard hwnd.EndPaint(ps.addr)
     mtp=false
     return nil
-    
+
   else:discard
 
   return DefWindowProcA(hWnd,uMsg,wParam,lParam)
