@@ -1,5 +1,5 @@
 
-# telines on Windows
+# nimplt on Windows
 
 {.pragma: User, stdcall, dynlib: "User32.dll".}
 {.pragma: Gdi, stdcall, dynlib: "Gdi32.dll".}
@@ -52,26 +52,31 @@ proc DispatchMessageA(lpMsg: pointer): pointer {.importc: "DispatchMessageA", Us
 proc PostQuitMessage(nExitCode: int32) {.importc: "PostQuitMessage", User.}
 proc GetMessageA(lpMsg, hWnd: pointer, wMsgFilterMin, wMsgFilterMax: int32): bool {.importc: "GetMessageA", User.}
 proc RegisterClassExA(lpwcx: WndClassEx): int16 {.importc: "RegisterClassExA", User.}
-proc GetStockObject(fnObject: int32): pointer {.importc: "GetStockObject", Gdi.}
 proc LoadCursorA(hInstance: pointer, lpCursorName: cstring): pointer {.importc: "LoadCursorA", User.}
 proc GetDC(hWnd:pointer):pointer{.importc:"GetDC", User.}
 proc TextOutW(hdc: pointer, nXStart, nYStart: int32, lpString: cstring, cchString: int32): bool {.importc: "TextOutW", Gdi.}
 proc ReleaseDC(hWnd,hDc:pointer):int8{.importc:"ReleaseDC", User.}
-proc BeginPaint(hWnd: pointer, lpPaint: var PaintStruct): pointer {.importc: "BeginPaint", User.}
-proc EndPaint(hWnd: pointer, lpPaint: var PaintStruct): bool {.importc: "EndPaint", User.}
-proc GetAsyncKeyState(vKey:int32): int8 {.importc: "GetAsyncKeyState", User.}
-##proc SendMessageA(hWnd: pointer, msg: int32, wParam, lParam: pointer): pointer {.importc: "SendMessageA", User.}
+proc BeginPaint(hWnd: pointer, lpPaint: ptr PaintStruct): pointer {.importc: "BeginPaint", User.}
+proc EndPaint(hWnd: pointer, lpPaint: ptr PaintStruct): bool {.importc: "EndPaint", User.}
+proc GetAsyncKeyState(vKey: int32): int8 {.importc: "GetAsyncKeyState", User.}
+proc InvalidateRect(hWnd: pointer, lpRect:ref Rect, bErase: bool): bool {.importc: "InvalidateRect", User.}
+proc InvalidateRgn(hWnd: pointer, hrgn:pointer, bErase: bool): bool {.importc: "InvalidateRect", User.}
+proc UpdateWindow(hWnd: pointer): bool {.importc: "UpdateWindow", User.}
+proc RedrawWindow(hWnd: pointer,lprcUpdate:ref Rect,hrgnUpdate:pointer,flags:int32): bool {.importc: "RedrawWindow", User.}
+proc GetCursorPos(lpPoint :ptr Point) :bool {.importc:"GetCursorPos", User.}
 proc CreateFontA(nHeight, nWidth, nEscapement, nOrientation, fnWeight, fdwItalic, fdwUnderline, fdwStrikeOut, fdwCharSet, fdwOutputPrecision, fdwClipPrecision, fdwQuality, fdwPitchAndFamily: int32, lpszFace: cstring): pointer {.importc: "CreateFontA", Gdi.}
-##proc SetPixel(hdc: pointer, x, y: int32, crColor: RGB32): int32 {.importc: "SetPixel", Gdi.}
 proc MoveToEx(hdc: pointer, x, y: int32, lpPoint: pointer): bool {.importc: "MoveToEx", Gdi.}
 proc LineTo(hdc: pointer, nXEnd, nYEnd: int): bool {.importc: "LineTo", Gdi.}
 proc CreatePen(fnPenStyle, nWidth: int32, crColor: RGB32): pointer {.importc: "CreatePen", Gdi.}
 proc CreateSolidBrush(crColor: RGB32): pointer {.importc: "CreateSolidBrush", Gdi.}
 proc SelectObject(hdc, hgdiobj: pointer): pointer {.importc: "SelectObject", Gdi.}
-##proc DeleteObject(hObject: pointer): bool {.importc: "DeleteObject", Gdi.}
+proc DeleteObject(hObject: pointer): bool {.importc: "DeleteObject", Gdi.}
 proc Rectangle(hdc: pointer, sx, sy, ex, ey: int32): pointer {.importc: "Rectangle", Gdi.}
 proc Ellipse(hdc: pointer, sx, sy, ex, ey: int32): pointer {.importc: "Ellipse", Gdi.}
-##proc FillRect(hDC: pointer, lprc: Rect, hbr: pointer): int32 {.importc: "FillRect", User.}
+proc GetStockObject(fnObject: int32): pointer {.importc: "GetStockObject", Gdi.}
+proc DeleteDC(hdc:pointer):bool{.importc: "DeleteDC", Gdi.}
+
+proc GetLastError:int32{.importc:"GetLastError",stdcall,dynlib:"Kernel32.dll".}
 
 proc event(hWnd:pointer,uMsg:int,wParam,lParam:pointer):pointer
 
@@ -93,68 +98,117 @@ discard RegisterClassExA(winc)
 
 var
   hwnd : pointer
-  hfont : pointer = CreateFontA(20,0,0,0,0,0,0,0,0,0,0,0,0,"Calibri")
   msg : Msg
-  ps : PaintStruct
-  hdc,tdc : pointer
-  dlxy : seq[seq[array[2,int]]] = @[]
-  rcxy : seq[array[6,int]] = @[]
+  ##hdc,tdc : pointer
   txy : seq[array[2,int]] = @[]
   txts : seq[string] = @[]
   pen,rcp,brs : seq[pointer] = @[]
   stx : string
-  inp* : int=0
+  inp : int=0
+  dlxy : seq[seq[array[2,int]]] = @[]
+  rcxy : seq[array[6,int]] = @[]
+  ppos : Point
+  mto,mtp : bool = false
+  tesi : int =0
 
-# setHwnd
+proc resetVal* =
+  dlxy  = @[]
+  rcxy  = @[]
+  txy = @[]
+  txts = @[]
+  pen = @[]
+  rcp = @[]
+  brs = @[]
 
 # event - event
 proc event(hWnd:pointer,uMsg:int,wParam,lParam:pointer):pointer=
   inp=0
+
+  var
+    ps:PaintStruct
+    hdc,tdc:pointer
+    hpen,hbrs:pointer
+    hfont : pointer = CreateFontA(20,0,0,0,0,0,0,0,0,0,0,0,0,"Calibri")
+
   case uMsg
   of 0x0002: # means "WM_DESTROY"
     PostQuitMessage(0)
+    return nil
   of 0x0100:
-    for i in [37,38,39,40]:
-      if GetAsyncKeyState(int32(i))!=0:
-        inp=i-36
+    for i in countup(0,7):
+      if GetAsyncKeyState(int32([0x25,0x26,0x27,0x28,0xA0,0xA1,0xA2,0xA3][i]))!=0:
+        inp=i+1
+    return nil
+  of 0x0201: # means "WM_LBUTTONDOWN"
+    mto=true
+    return nil
+    ##echo GetCursorPos(ppos.addr)
+    ##echo ppos.x
+    ##echo "0x0201"
+  of 0x0202: # means "WM_LBUTTONUP"
+    mto=false
+    return nil
+    ##echo "0x0202"
+  of 0x0200: # means "WM_MOUSEMOVE"
+    return nil
+  of 0x02A3: # means "WM_MOUSELEAVE"
+    echo "0x02A3"
+    return nil
   of 0x000F: # means "WM_PAINT"
     # draw lines
-    hdc = hwnd.BeginPaint(ps)
-    var dln=0
-    for xy in dlxy:
-      discard hdc.SelectObject(pen[dln])
-      discard hdc.MoveToEx(int32(xy[0][0]),int32(xy[0][1]),nil)
-      for i in 1..<xy.len:
-        discard hdc.LineTo(xy[i][0],xy[i][1])
-      dln+=1
-    dln=0
-    for xy in rcxy:
-      discard hdc.SelectObject(rcp[dln])
-      discard hdc.SelectObject(brs[dln])
-      if xy[4]==0:
-        ##if xy[5]==0:
-          ##discard hdc.FillRect(Rect(left:int32(xy[0]),top:int32(xy[1]),right:int32(xy[2]),bottom:int32(xy[3])),rcp[dln])
-        ##else:discard hdc.Rectangle(int32(xy[0]),int32(xy[1]),int32(xy[2]),int32(xy[3]))
-        discard hdc.Rectangle(int32(xy[0]),int32(xy[1]),int32(xy[2]),int32(xy[3]))
+    hdc = hwnd.BeginPaint(ps.addr)
+    for i in 0..<dlxy.len:
+      hpen=pen[i]
+      discard hdc.SelectObject(hpen)
+      discard hdc.MoveToEx(int32(dlxy[i][0][0]),int32(dlxy[i][0][1]),nil)
+      for I in 1..<dlxy[i].len:
+        discard hdc.LineTo(dlxy[i][I][0],dlxy[i][I][1])
+      discard hpen.DeleteObject
+
+    # draw rects
+    for i in 0..<rcxy.len:
+      hpen=rcp[i]
+      hbrs=brs[i]
+      if rcxy[i][4]==0:
+        discard hdc.Rectangle(int32(rcxy[i][0]),int32(rcxy[i][1]),int32(rcxy[i][2]),int32(rcxy[i][3]))
       else:
-        discard hdc.Ellipse(int32(xy[0]),int32(xy[1]),int32(xy[2]),int32(xy[3]))
-      dln+=1
-    discard hwnd.EndPaint(ps)
+        discard hdc.Ellipse(int32(rcxy[i][0]),int32(rcxy[i][1]),int32(rcxy[i][2]),int32(rcxy[i][3]))
+      discard hpen.DeleteObject
+      discard hbrs.DeleteObject
 
-    # draw texts
-
+    #draw texts
     tdc = hwnd.GetDC
     discard tdc.SelectObject(hfont)
     for ts in (0..<txts.len):
       stx=txts[ts]
       for i in countdown(txts[ts].len-1,1):
         stx.insert("\0",i)
-
       discard tdc.TextOutW(int32(txy[ts][0]),int32(txy[ts][1]),stx,int8(txts[ts].len))
+    discard hfont.DeleteObject
+
+    discard hwnd.ReleaseDC(hdc)
     discard hwnd.ReleaseDC(tdc)
-    ##
-  else:
-    discard
+    discard hwnd.EndPaint(ps.addr)
+    mtp=false
+    return nil
+
+    # draw texts
+    #[
+    tdc = hwnd.GetDC
+    discard tdc.SelectObject(hfont)
+    for ts in (0..<txts.len):
+      stx=txts[ts]
+      for i in countdown(txts[ts].len-1,1):
+        stx.insert("\0",i)
+      echo tdc.TextOutW(int32(txy[ts][0]),int32(txy[ts][1]),stx,int8(txts[ts].len))
+    echo hwnd.ReleaseDC(tdc)
+    echo tdc.DeleteDC
+    echo hdc.DeleteDC
+    echo hwnd.EndPaint(ps)
+    echo "-----"
+
+    ]#
+  else:discard
 
   return DefWindowProcA(hWnd,uMsg,wParam,lParam)
 
@@ -175,7 +229,6 @@ proc rect*(sx,sy,ex,ey:int,rgb:tuple,cy,w:int)=
   brs.add([CreateSolidBrush(RGB32(red:uint8(255), green:uint8(255), blue:uint8(255), unused:0)),CreateSolidBrush(RGB32(red:uint8(rgb[0]), green:uint8(rgb[1]), blue:uint8(rgb[2]), unused:0))][int(w==0)])
   rcxy.add([sx,sy,ex,ey,cy,w])
 
-
 # text - draw a text
 proc text*(x,y:int,txt:string)=
   txts.add(txt)
@@ -187,11 +240,27 @@ proc GetMessage*:bool =
 
 # Loopin - main loop
 proc Loopin* =
-  discard TranslateMessage(msg.addr)
+  #[
+  if GetLastError()!=0:
+    echo """<< Win32API error >>
+Error code : """ & $GetLastError()
+  ]#
   discard DispatchMessageA(msg.addr)
+
+# reDraw
+proc reDraw* =
+  if not mtp:
+    mtp=true
+    discard hwnd.InvalidateRgn(nil,true)
+  discard hwnd.UpdateWindow
+
+# mousePos - mouse position
+proc mousePos* :array[2,int]=
+  discard GetCursorPos(ppos.addr)
+  return [int(ppos.x),int(ppos.y)]
 
 # showWin - show the window
 proc showWin*(winSize:tuple)=
-  hwnd = CreateWindowExA(1,"MAIN","NimPl - Alpha",0x00CF0000,150,200,winSize[0],winSize[1],nil,nil,nil,nil)
+  hwnd = CreateWindowExA(1,"MAIN","Nimplt - Alpha",0x00CF0000,150,200,winSize[0],winSize[1],nil,nil,nil,nil)
   if hwnd==nil:echo "Failed to create window"
-  discard hwnd.ShowWindow(5)
+  if hwnd.ShowWindow(5):echo "Failed to show window"
