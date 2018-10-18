@@ -4,15 +4,15 @@
 Nimpl is a powerful & lightweight GUI plotting tool for [Nim](https://nim-lang.org/) lanuage.<br>
 Nimpl helps your project about Machine learning, Data analysis, and more...<br>
 
-### Platforms
+## Platforms
 Windows ( Win32API ) < Beta 0.0.0 ><br>
 Linux ( Gtk+ 3 ) < Under development ><br>
 MacOS ( Gtk+ 3 ) < Planned ><br>
 
-### Support versions
+## Support versions
 Nim 0.18.0 < official support >
 
-### the Goal of this project
+## the Goal of this project
 ・**Fulfilling functionality** like [matplotlib](https://github.com/matplotlib/matplotlib) (plotting tool for Python)<br>
 ・Most **lightweight** GUI plotting tool for Nim<br>
 ・**Clear & beautiful design**<br>
