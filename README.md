@@ -5,7 +5,7 @@ Nimpl is a powerful & lightweight GUI plotting tool for [Nim](https://nim-lang.o
 Nimpl helps your project about Machine learning, Data analysis, and more...<br>
 
 ### Platforms
-Windows ( Win32API ) < 0.0.0 ><br>
+Windows ( Win32API ) < Beta 0.0.0 ><br>
 Linux ( Gtk+ 3 ) < Under development ><br>
 MacOS ( Gtk+ 3 ) < Planned ><br>
 
