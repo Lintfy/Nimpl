@@ -3,11 +3,11 @@
 
 Nimpl is a powerful & lightweight GUI plotting tool for **Nim** lanuage.
 
-### 
+### How to use
 
 ### Target platforms
-Windows ( Win32API ) < Under development ><br>
-Linux ( Gtk+ 3 ) < Planned ><br>
+Windows ( Win32API ) < 0.0.0 ><br>
+Linux ( Gtk+ 3 ) < Under development ><br>
 MacOS ( Gtk+ 3 ) < Planned ><br>
 
 ## LICENCE
