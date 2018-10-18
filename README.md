@@ -15,8 +15,8 @@ MacOS ( Gtk+ 3 ) < Planned ><br>
 ・Clear & beautiful design<br>
 ・Easy to use even from beginners<br>
 
-## Screen Shots
-
+## ScreenShots
+![alpha-win0 0 0](https://user-images.githubusercontent.com/38907008/47158316-5a2e4580-d326-11e8-9944-2eeabfb61688.JPG)
 ## LICENCE
 Nimpl is an open-source software (licenced under the MIT LICENCE).
 
