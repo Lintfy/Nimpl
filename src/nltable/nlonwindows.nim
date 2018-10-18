@@ -57,6 +57,7 @@ proc TextOutW(hdc: pointer, nXStart, nYStart: int32, lpString: cstring, cchStrin
 proc ReleaseDC(hWnd,hDc:pointer):int8{.importc:"ReleaseDC", User.}
 proc BeginPaint(hWnd: pointer, lpPaint: ptr PaintStruct): pointer {.importc: "BeginPaint", User.}
 proc EndPaint(hWnd: pointer, lpPaint: ptr PaintStruct): bool {.importc: "EndPaint", User.}
+proc SendMessageA(hWnd:pointer,uMsg:int,wParam,lParam:pointer): pointer {.importc: "SendMessageA", User.}
 proc GetAsyncKeyState(vKey: int32): int8 {.importc: "GetAsyncKeyState", User.}
 proc InvalidateRgn(hWnd: pointer, hrgn:pointer, bErase: bool): bool {.importc: "InvalidateRect", User.}
 proc UpdateWindow(hWnd: pointer): bool {.importc: "UpdateWindow", User.}
@@ -72,9 +73,10 @@ proc Rectangle(hdc: pointer, sx, sy, ex, ey: int32): pointer {.importc: "Rectang
 proc Ellipse(hdc: pointer, sx, sy, ex, ey: int32): pointer {.importc: "Ellipse", Gdi.}
 proc GetStockObject(fnObject: int32): pointer {.importc: "GetStockObject", Gdi.}
 
-##proc GetLastError:int32{.importc:"GetLastError",stdcall,dynlib:"Kernel32.dll".}
+##proc sleep(time:int32){.importc:"Sleep",stdcall,dynlib:"Kernel32.dll".}
 
 proc event(hWnd:pointer,uMsg:int,wParam,lParam:pointer):pointer
+proc Loopin*
 
 var winc= WndClassEx(
   cbSize:WndClassEx.sizeof.int32,
@@ -95,17 +97,15 @@ discard RegisterClassExA(winc)
 var
   hwnd : pointer
   msg : Msg
-  ##hdc,tdc : pointer
   txy : seq[array[2,int]] = @[]
   txts : seq[string] = @[]
   pen,rcp,brs : seq[pointer] = @[]
   stx : string
-  inp : int=0
+  inp* : int=0
   dlxy : seq[seq[array[2,int]]] = @[]
   rcxy : seq[array[6,int]] = @[]
   ppos : Point
-  mto,mtp : bool = false
-  tesi : int =0
+  mto*,mtc*,mtp : bool = false
 
 proc resetVal* =
   dlxy  = @[]
@@ -118,38 +118,23 @@ proc resetVal* =
 
 # event - event
 proc event(hWnd:pointer,uMsg:int,wParam,lParam:pointer):pointer=
-  inp=0
-
   var
     ps:PaintStruct
     hdc,tdc:pointer
     hpen,hbrs:pointer
     hfont : pointer = CreateFontA(20,0,0,0,0,0,0,0,0,0,0,0,0,"Calibri")
-
   case uMsg
   of 0x0002: # means "WM_DESTROY"
     PostQuitMessage(0)
-    return nil
-  of 0x0100:
+  of 0x0100: # means
     for i in countup(0,7):
       if GetAsyncKeyState(int32([0x25,0x26,0x27,0x28,0xA0,0xA1,0xA2,0xA3][i]))!=0:
         inp=i+1
-    return nil
   of 0x0201: # means "WM_LBUTTONDOWN"
-    mto=true
-    return nil
-    ##echo GetCursorPos(ppos.addr)
-    ##echo ppos.x
-    ##echo "0x0201"
-  of 0x0202: # means "WM_LBUTTONUP"
-    mto=false
-    return nil
-    ##echo "0x0202"
-  of 0x0200: # means "WM_MOUSEMOVE"
-    return nil
-  of 0x02A3: # means "WM_MOUSELEAVE"
-    echo "0x02A3"
-    return nil
+    if mto:
+      mto = false
+      inp = -1
+    else:mto = true
   of 0x000F: # means "WM_PAINT"
     # draw lines
     hdc = hwnd.BeginPaint(ps.addr)
@@ -186,10 +171,12 @@ proc event(hWnd:pointer,uMsg:int,wParam,lParam:pointer):pointer=
     discard hwnd.ReleaseDC(tdc)
     discard hwnd.EndPaint(ps.addr)
     mtp=false
-    return nil
 
+  of 0x020A: # means "WM_MOUSEWHEEL"
+    if cast[int](wParam)shr 24 == 0:inp= 6
+    else:inp= 7
+    ##echo cast[int](wParam)shr 32
   else:discard
-
   return DefWindowProcA(hWnd,uMsg,wParam,lParam)
 
 # line - draw lines
@@ -240,7 +227,7 @@ proc mousePos* :array[2,int]=
   return [int(ppos.x),int(ppos.y)]
 
 # showWin - show the window
-proc showWin*(winSize:tuple)=
+proc showWin*(winSize:array[2,int])=
   hwnd = CreateWindowExA(1,"MAIN","Nimplt - Alpha",0x00CF0000,150,200,winSize[0],winSize[1],nil,nil,nil,nil)
   if hwnd==nil:echo "Failed to create window"
   if hwnd.ShowWindow(5):echo "Failed to show window"

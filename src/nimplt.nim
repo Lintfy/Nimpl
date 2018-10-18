@@ -11,7 +11,7 @@
 #
 const win = defined(windows)
 
-when win: include "nltable/nlonwindows"
+when win: import "nltable/nlonwindows"
 when not win: import "nltable/nlongtk"
 import nltable/nltypes,math,sequtils
 
@@ -21,9 +21,10 @@ const
   ERROR_INVALID_DATA="invalid data"
 
 var
-  winSize:tuple=(550,450)
-  lineRange:tuple=(0.0,0.0,0.0,0.0) # Xi,Xa,Yi,Ya
-  lineSize:tuple=(0,0)
+  winSize:array[2,int]=[550,450]
+  lineRange,bflineRange:array[4,float]=[0.0,0.0,0.0,0.0] # Xi,Xa,Yi,Ya
+
+  lineSize:array[2,int]=[0,0]
   autoLineRange:array[2,bool]=[true,true]
   bvl:seq[array[2,int]]
   grps:seq[line] = @[]
@@ -56,7 +57,7 @@ proc nlLineConf*(floatValue:bool=true,roundLevel:int=8)=
   floatVal=floatValue
   roundLev=roundLevel
 
-proc nlSetSize*(w,h:int)=winSize=(w,h)
+proc nlSetSize*(w,h:int)=winSize=[w,h]
 
 proc nlSetLineRange*(xmin,xmax,ymin,ymax:float=0.0)=
   if xmin!=xmax:
@@ -95,18 +96,13 @@ proc nlshowLine*(grp:varargs[line])=
       mxa.add(G.xdata.max)
       myi.add(G.ydata.min)
       mya.add(G.ydata.max)
-    if autoLineRange[0]:
-      lineRange[0]=mxi.min
-      lineRange[1]=mxa.max
-    if autoLineRange[1]:
-      lineRange[2]=myi.min
-      lineRange[3]=mya.max
+    if autoLineRange[0]:(lineRange[0],lineRange[1])=(mxi.min,mxa.max)
+    if autoLineRange[1]:(lineRange[2],lineRange[3])=(myi.min,mya.max)
 
-    #lineRange=(mxi.min,mxa.max,myi.min,mya.max)
-  autoLineRange[0]=false
-  autoLineRange[1]=false
+    autoLineRange[0]=false
+    autoLineRange[1]=false
 
-  lineSize=(winSize[0]-side[1],winSize[1]-side[3])
+  lineSize=[winSize[0]-side[1],winSize[1]-side[3]]
 
   proc point(n:float,fl:int):int=[
     (n-lineRange[0])/(lineRange[1]-lineRange[0])*float(winSize[0]-side[0]-side[1])+float(side[0]),
@@ -130,14 +126,22 @@ proc nlshowLine*(grp:varargs[line])=
       text(20,q-12,qtxt)
 
   # lines
-  for G in grp:
-    if G.xdata.len==G.ydata.len:
-      bvl = @[]
-      for i in countup(0,G.xdata.len-1):
-        bvl.add([point(G.xdata[i],0),point(G.ydata[i],1)])
-      softLine(2,G.color,bvl)
-
-    else:echo ERROR_INVALID_DATA
+  if mto:
+    line(1,[0,0,0],@[
+      [bfLineRange[0].point(0),bfLineRange[2].point(1)],
+      [bfLineRange[0].point(0),bfLineRange[3].point(1)],
+      [bfLineRange[1].point(0),bfLineRange[3].point(1)],
+      [bfLineRange[1].point(0),bfLineRange[2].point(1)],
+      [bfLineRange[0].point(0),bfLineRange[2].point(1)]
+    ])
+  else:
+    for G in grp:
+      if G.xdata.len==G.ydata.len:
+        bvl = @[]
+        for i in countup(0,G.xdata.len-1):
+          bvl.add([point(G.xdata[i],0),point(G.ydata[i],1)])
+        softLine(2,G.color,bvl)
+      else:echo ERROR_INVALID_DATA
 
   line(1,[100,100,100],@[
     [side[0],side[2]],
@@ -159,49 +163,53 @@ proc nlshowLine*(grp:varargs[line])=
     main()
   return
 
-proc cont=
+proc cont(input:int)=
+  if input == -1:
+    nlshowLine(grps)
+    redraw()
+    return
   qmx = (lineRange[0]-lineRange[1])/16
   qmy = (lineRange[2]-lineRange[3])/16
-  if inp<5:
-    if inp mod 2 == 1:
-      qmx *= float(inp-2)
+  if input<5:
+    if input mod 2 == 1:
+      qmx *= float(input-2)
       lineRange[0]-=qmx
       lineRange[1]-=qmx
     else:
-      qmy *= float(inp-3)
+      qmy *= float(input-3)
       lineRange[2]+=qmy
       lineRange[3]+=qmy
-  elif inp<9:
-    if inp<7:
+  elif input<9:
+    if input<7:
       qmx *= -1
       qmy *= -1
     lineRange[0] += qmx
     lineRange[1] -= qmx
     lineRange[2] += qmy
     lineRange[3] -= qmy
-  inp=0
   nlshowLine(grps)
   redraw()
 
 proc mscontsc(nmb:seq[float])=
-  qmx = (lineRange[0]-lineRange[1])/256
-  qmy = (lineRange[2]-lineRange[3])/256
+  qmx = (lineRange[0]-lineRange[1])/float(linesize[0])*2
+  qmy = (lineRange[2]-lineRange[3])/float(linesize[1])*2
   lineRange[0]+=qmx*nmb[0]
   lineRange[1]+=qmx*nmb[0]
-  lineRange[2]-=qmx*nmb[1]
-  lineRange[3]-=qmx*nmb[1]
+  lineRange[2]-=qmy*nmb[1]
+  lineRange[3]-=qmy*nmb[1]
   nlshowLine(grps)
   redraw()
-
 
 # mainloop
 proc main=
   showWin(winSize=winSize)
   while GetMessage():
-    if inp!=0:cont()
-    nmoP=mousePos()
     if mto:
+      nmoP=mousePos()
       [nmoP[0]-bmoP[0],nmoP[1]-bmoP[1]].toFloats.mscontsc
+    else:bfLineRange=lineRange
     bmoP=mousePos()
+    if inp!=0:
+      cont(inp)
+      inp=0
     Loopin()
-    ##1.sleep
