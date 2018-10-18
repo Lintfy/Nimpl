@@ -11,8 +11,8 @@
 #
 const win = defined(windows)
 
-when win: import "nltable/nlonwindows"
-when not win: import "nltable/nlongtk"
+when win: import nltable/nlonwindows
+when not win: import nltable/nlongtk
 import nltable/nltypes,math,sequtils
 
 export line
@@ -56,6 +56,13 @@ proc toFloats*(n:seq[int] or array):seq[float]=map(n,proc(n:int):float=float(n))
 proc nlLineConf*(floatValue:bool=true,roundLevel:int=8)=
   floatVal=floatValue
   roundLev=roundLevel
+
+proc nlLine*(name:string;xdata,ydata:seq[float],color:array[3,int]):line=
+  result.name=name
+  result.xdata=xdata
+  result.ydata=ydata
+  result.color=color
+  return result
 
 proc nlSetSize*(w,h:int)=winSize=[w,h]
 
@@ -113,7 +120,7 @@ proc nlshowLine*(grp:varargs[line])=
   for i in scales(lineRange[0],lineRange[1]):
     q=point(i,0)
     qtxt=txtFormat(i)
-    if i!=lineRange[0] and i!=lineRange[1]:line(int(qtxt=="0.0" or qtxt=="0")+1,[220,220,220],@[[q,side[2]],[q,winSize[1]-side[3]]])
+    if i!=lineRange[0] and i!=lineRange[1]:Line(int(qtxt=="0.0" or qtxt=="0")+1,[220,220,220],@[[q,side[2]],[q,winSize[1]-side[3]]])
     if (q>side[0]+(lineSize[0] div 10) and winSize[0]-side[1]-(lineSize[0] div 10)>q) or i==lineRange[0] or i==lineRange[1]:
       text(q-5*int(floatVal)-5,winSize[1]-side[3]+20,qtxt)
 
@@ -121,13 +128,13 @@ proc nlshowLine*(grp:varargs[line])=
   for i in scales(lineRange[2],lineRange[3]):
     q=point(i,1)
     qtxt=txtFormat(i)
-    if i!=lineRange[2] and i!=lineRange[3]:line(int(qtxt=="0.0" or qtxt=="0")+1,[200,200,200],@[[side[0],q],[winSize[0]-side[1],q]])
+    if i!=lineRange[2] and i!=lineRange[3]:Line(int(qtxt=="0.0" or qtxt=="0")+1,[200,200,200],@[[side[0],q],[winSize[0]-side[1],q]])
     if (q>side[2]+(lineSize[1] div 10) and winSize[1]-side[3]-(lineSize[1] div 10)>q) or i==lineRange[2] or i==lineRange[3]:
       text(20,q-12,qtxt)
 
   # lines
   if mto:
-    line(1,[0,0,0],@[
+    Line(1,[0,0,0],@[
       [bfLineRange[0].point(0),bfLineRange[2].point(1)],
       [bfLineRange[0].point(0),bfLineRange[3].point(1)],
       [bfLineRange[1].point(0),bfLineRange[3].point(1)],
@@ -143,7 +150,7 @@ proc nlshowLine*(grp:varargs[line])=
         softLine(2,G.color,bvl)
       else:echo ERROR_INVALID_DATA
 
-  line(1,[100,100,100],@[
+  Line(1,[100,100,100],@[
     [side[0],side[2]],
     [side[0],lineSize[1]],
     [lineSize[0],lineSize[1]],

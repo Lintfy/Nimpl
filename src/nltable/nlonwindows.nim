@@ -180,15 +180,15 @@ proc event(hWnd:pointer,uMsg:int,wParam,lParam:pointer):pointer=
   return DefWindowProcA(hWnd,uMsg,wParam,lParam)
 
 # line - draw lines
-proc line*(w:int,rgb:array[3,int] or seq[int],xy:seq[array[2,int]])=
+proc Line*(w:int,rgb:array[3,int] or seq[int],xy:seq[array[2,int]])=
   pen.add(CreatePen(0,int32(w),RGB32(red:uint8(rgb[0]), green:uint8(rgb[1]), blue:uint8(rgb[2]), unused:0)))
   dlxy.add(xy)
 
 # softLine - draw lines (soft)
 proc softLine*(w:int,rgb:array[3,int],xy:seq[array[2,int]])=
   ##proc tff(n:int):int=255-(255-n)div 2
-  line(w,map(rgb,proc(n:int):int=255-(255-n)div 2),xy)
-  line(w-1,rgb,xy)
+  Line(w,map(rgb,proc(n:int):int=255-(255-n)div 2),xy)
+  Line(w-1,rgb,xy)
 
 # rect
 proc rect*(sx,sy,ex,ey:int,rgb:tuple,cy,w:int)=
