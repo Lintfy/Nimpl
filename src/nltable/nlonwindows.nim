@@ -1,5 +1,5 @@
 
-# nimplt on Windows
+# nimpl on Windows
 
 {.pragma: User, stdcall, dynlib: "User32.dll".}
 {.pragma: Gdi, stdcall, dynlib: "Gdi32.dll".}

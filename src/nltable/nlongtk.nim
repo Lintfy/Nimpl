@@ -1,5 +1,5 @@
 
-# telines on GTK
+# nimpl on GTK
 import nltypes
 proc showWin*(title,xlabel,ylabel:string,data:seq):bool=
   echo "G"
