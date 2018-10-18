@@ -9,6 +9,9 @@ Windows ( Win32API ) < Beta 0.0.0 ><br>
 Linux ( Gtk+ 3 ) < Under development ><br>
 MacOS ( Gtk+ 3 ) < Planned ><br>
 
+### Support versions
+Nim 0.18.0 < official support >
+
 ### the Goal of this project
 ・**Fulfilling functionality** like [matplotlib](https://github.com/matplotlib/matplotlib) (plotting tool for Python)<br>
 ・Most **lightweight** GUI plotting tool for Nim<br>
